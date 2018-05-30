@@ -1,0 +1,25 @@
+- name: hexo init 
+  hosts: test 
+  user: root
+  tasks:
+  - name: Install Git 
+    yum:  name=git state=latest 
+  - name: mkdir volumes map hostPath
+    command: 'mkdir -pv /data/' 
+  - name: pull hexo data
+    command: 'git clone https://github.com/panhaitao/hexo-blog.git /data/' 
+  - name: set  git pull crontab task
+    template: src=templates/crontab dest=/etc/crontab group=root mode=0644
+  - name: restart crond services
+    service: name=crond enabled=yes state=restarted
+
+  - name: scp hexo-rc.yaml
+    template: src=templates/pods/hexo-rc.yaml dest=/root/hexo-rc.yaml group=root mode=0755
+  - name: scp hexo-srv.yaml
+    template: src=templates/pods/hexo-srv.yaml dest=/root/hexo-srv.yaml group=root mode=0755
+  - name: pull hexo images
+    command: 'docker pull registry.deepin.com/library/hexo' 
+  - name: run nginx-rc.yaml
+    command: 'kubectl create -f hexo-rc.yaml' 
+  - name: run nginx-srv.yaml
+    command: 'kubectl create -f hexo-srv.yaml' 

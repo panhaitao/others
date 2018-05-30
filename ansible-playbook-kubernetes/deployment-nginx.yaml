@@ -1,0 +1,3 @@
+- include: roles/centos7-init.yaml
+- include: roles/kubernetes.yaml
+- include: roles/nginx.yaml

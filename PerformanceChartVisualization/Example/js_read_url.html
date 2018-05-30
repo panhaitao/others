@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>JavaScript - read JSON from URL</title>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+</head>
+
+<body>
+    <div class="mypanel"></div>
+
+    <script>
+    $.getJSON('http://127.0.0.1:5000', function(data) {
+        
+        var text = `Date: ${data.hello}<br>}`
+                    
+        
+        $(".mypanel").html(text);
+    });
+    </script>
+    
+</body>
+</html>

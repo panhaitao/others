@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: hexo 
+spec:
+  replicas: 5
+  selector:
+    app: hexo
+  template:
+    metadata:
+      labels:
+        app: hexo
+    spec:
+      volumes:
+        - name: hexo-data
+          hostPath:
+            path: /data
+      containers:
+        - name: hexo
+          image: emitting/hexo
+          volumeMounts: 
+            - name: hexo-data
+              mountPath: /blog
+          ports:
+          - containerPort: 4000

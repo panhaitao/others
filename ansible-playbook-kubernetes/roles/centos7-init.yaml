@@ -1,0 +1,18 @@
+- name: OS Base Config
+  hosts: test 
+  user: root
+  tasks:
+  - name: Update SSH Pubkey
+    template: src=templates/authorized_keys dest=/root/.ssh/authorized_keys owner=root group=root mode=0755
+  - name: Disable Firewalld
+    command: 'systemctl disable firewalld' 
+  - name: Disable SELinux
+    template: src=templates/selinux/config dest=/etc/selinux/config owner=root group=root mode=644
+  - name: Update hosts record  
+    template: src=templates/hosts dest=/etc/hosts owner=root group=root mode=644
+  - name: Clean repo dir
+    command: 'rm -f /etc/yum.repo.d/*.repo' 
+  - name: Update Yum Repo  Files
+    template: src=templates/yum.repos.d/ustc.repo dest=/etc/yum.repos.d/ustc.repo owner=root group=root mode=644
+  - name: Sync Repo Meta   
+    command: 'yum update -y' 

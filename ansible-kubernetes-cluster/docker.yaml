@@ -1,0 +1,29 @@
+- name: deployment kubernetes master
+  hosts: k8s-nodes
+  vars:
+    name: docker
+    version: 1.12.6 
+    src_bin_path: pkg/{{ name }}/{{ version }}/server/bin/ 
+    src_conf_path: pkg/{{ name }}/{{ version }}/conf/
+    srv_path: /usr/lib/systemd/system/
+    srv_list:
+      - docker
+    env_list:
+
+  tasks:
+    - name: Install Docker Package    
+      yum: name=docker state=latest update_cache=yes
+      notify: restart docker
+
+    - name: Copy All node service file
+      copy: src={{ src_conf_path }}/{{ item }}.service dest={{ srv_path }}/{{ item }}.service
+      notify:
+        - daemon-reload
+        - restart docker
+      with_items: "{{ srv_list }}"
+
+  handlers:
+    - name: daemon-reload
+      command: "systemctl daemon-reload"
+    - name: restart docker
+      service: name=docker state=restarted enabled=yes

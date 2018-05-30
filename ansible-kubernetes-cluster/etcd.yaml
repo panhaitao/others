@@ -1,0 +1,48 @@
+- name: deployment kubernetes master
+  hosts: k8s-master
+  vars:
+    name: etcd
+    version: 3.2.10
+    etcd_server: 10.1.11.164
+    src_bin_path: pkg/{{ name }}/{{ version }}/ 
+    src_conf_path: pkg/{{ name }}/{{ version }}/conf/
+    srv_path: /usr/lib/systemd/system/
+    srv_list:
+      - etcd
+  tasks:
+    - name: install etcd bin
+      copy: src={{ src_bin_path }}/{{ item }} dest=/usr/bin/{{ item }} owner=root group=root mode=0755 
+      notify:
+        - daemon-reload
+        - restart service
+      with_items: "{{ srv_list }}"
+
+    - name: Preparing for etcd
+      command: "mkdir -pv {{ item }}"
+      run_once: true
+      with_items:
+        - /etc/etcd/
+        - /var/lib/etcd/
+
+    - name: Copy etcd conf file
+      template: src={{ src_conf_path }}/{{ item }}.conf dest=/etc/etcd/
+      notify:
+        - daemon-reload
+        - restart service
+      with_items: "{{ srv_list }}"
+
+    - name: Copy etcd service file
+      copy: src={{ src_conf_path }}/{{ item }}.service dest={{ srv_path }}/{{ item }}.service
+      notify:
+        - daemon-reload
+        - restart service
+      with_items: "{{ srv_list }}"
+
+  handlers:
+    - name: daemon-reload
+      command: "systemctl daemon-reload"
+    - name: restart service 
+      service: name={{ item }} state=restarted
+      with_items: "{{ srv_list }}"
+#    - name: Post Setting for etcd
+#      command: "etcdctl -C http://10.1.11.168:2379 set /atomic.io/network/config '{"Network": "192.168.0.0/16"}'"

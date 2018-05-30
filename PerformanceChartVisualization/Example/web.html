@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-quuiv="Access-Control-Allow-Origin" content="*">
+<script src="scripts/Chart.js"></script>
+<script src="scripts/jquery-3.2.1.min.js"></script>
+</head>
+ 
+<body>
+
+<div id="demo">	</div>
+
+<div  style="width:400px;height=400px"> <canvas id="bar_charts" ></canvas> </div>
+<div  style="width:400px;height=400px"> <canvas id="pie_charts" ></canvas> </div>
+
+<script>
+
+$.ajax({
+	  url : "http://127.0.0.1:5000",
+	    method:"GET",
+	    dataType: "JSON",
+	    contentType: "application/json",
+	    accepts: "application/json",
+	    async: false,
+	    success: function(data){
+		alert("data"+ data);
+		         	  },
+	    error: function(err){
+		alert("err" + err);
+	         	        }
+})
+
+//$.ajax({  
+//	    url:"http://localhost:8080/mem/",    
+//            type: "GET",  
+//	    data:JSON.stringify(data_param),  
+//	    headers:{  
+//	        "X-Auth-Token":"open-sesame",  
+//	        "Content-Type":"application/json"  
+//		    },  
+//	    contentType: 'text/html; charset=UTF-8',      
+//	    dataType: "json",  
+//	    success: function(data) {  
+//		            alert(data); // Object  
+//			        },  
+//	    error: function(XMLHttpRequest, textStatus, errorThrown) {  
+//	 		    alert(XMLHttpRequest.status);  
+//			    alert(XMLHttpRequest.readyState);  
+//			    alert(textStatus);  
+//			    },  
+//	    complete: function(XMLHttpRequest, textStatus) {  
+//	    }  
+//});  
+
+
+
+var ctx1 = document.getElementById("bar_charts").getContext('2d');
+var bar_chart = new Chart(ctx1, {
+    type: 'bar',
+    data: {
+        labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
+        datasets: [{
+            label: '# of Votes',
+            data: [12, 19, 3, 5, 2, 3],
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)'
+            ],
+            borderColor: [
+                'rgba(255,99,132,1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)'
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero:true
+                }
+            }]
+        }
+    }
+});
+
+
+
+// draw pie 
+var config = {
+        type: 'doughnut',
+        data: {
+        	datasets: [{
+			data: [70, 30 ,60],
+		        backgroundColor: [
+                	'rgba(255, 99, 132, 9)',
+                	'rgba(255, 206, 86, 9)',
+                	'rgba(75, 192, 192, 9)',
+			        ]
+			}],
+        	labels: [ "Red", "Orange", "Yellow"]
+        	},
+        options: {
+            responsive: true
+        }
+    };
+
+var ctx = document.getElementById("pie_charts").getContext("2d");
+var myPieChart = new Chart(ctx,config);
+
+</script>
+
+
+</body>
+</html>
+
+

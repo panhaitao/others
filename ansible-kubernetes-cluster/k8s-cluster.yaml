@@ -1,0 +1,2 @@
+- include: k8s-cluster-master.yaml
+- include: k8s-cluster-node.yaml

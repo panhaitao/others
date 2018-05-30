@@ -1,0 +1,15 @@
+name: pigz 
+version: 2.3.4 
+summary: a parallel compress tool
+description: pigz, which stands for parallel implementation of gzip, is a fully functional replacement for gzip that exploits multiple processors and multiple cores to the hilt when compressing data. 
+
+grade: stable
+confinement: strict # evmode  use 'strict' once you have the right plugs and slots
+
+apps:
+  pigz:
+    command: pigz
+parts:
+  pigz:
+    plugin: make 
+    source: https://github.com/panhaitao/pigz-with-snap.git 

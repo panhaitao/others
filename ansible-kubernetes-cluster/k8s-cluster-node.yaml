@@ -1,0 +1,53 @@
+- name: deployment kubernetes master
+  hosts: k8s-nodes
+  vars:
+    name: k8s
+    version: 1.8.2
+    src_bin_path: pkg/{{ name }}/{{ version }}/server/bin/ 
+    src_conf_path: pkg/{{ name }}/{{ version }}/conf/
+    srv_path: /usr/lib/systemd/system/
+    srv_list:
+      - kube-proxy
+      - kubelet
+    env_list:
+      - proxy
+      - kubelet
+
+  tasks:
+    - name: install All node bin
+      copy: src={{ src_bin_path }}/{{ item }} dest=/usr/bin/{{ item }} owner=root group=root mode=0755 
+      notify:
+        - daemon-reload
+        - restart k8s service
+      with_items: "{{ srv_list }}"
+
+    - name: Copy All node service file
+      copy: src={{ src_conf_path }}/{{ item }}.service dest={{ srv_path }}/{{ item }}.service
+      notify:
+        - daemon-reload
+        - restart k8s service
+      with_items: "{{ srv_list }}"
+
+    - name: mkdir {{ item }}
+      command: "mkdir -pv /etc/kubernetes/"
+      run_once: true
+
+    - name: Copy Common Environment File
+      copy: src={{ src_conf_path }}/kubernetes/config dest=/etc/kubernetes/config
+      notify: 
+        - daemon-reload
+        - restart k8s service
+
+    - name: Copy k8s-node Environment File
+      copy: src={{ src_conf_path }}/kubernetes/{{ item }} dest=/etc/kubernetes/{{ item }}
+      notify:
+        - daemon-reload
+        - restart k8s service
+      with_items: "{{ env_list }}"
+
+  handlers:
+    - name: daemon-reload
+      command: "systemctl daemon-reload"
+    - name: restart k8s service 
+      service: name={{ item }} state=restarted enabled=yes
+      with_items: "{{ srv_list }}"

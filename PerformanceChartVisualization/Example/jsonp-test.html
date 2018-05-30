@@ -1,0 +1,49 @@
+ <html>
+ <head>
+     <title>跨域测试</title>
+     <script src="scripts/jquery-3.2.1.min.js"></script>
+     <script>
+ 
+         function showData (json) {
+             console.info("调用showData");
+ 
+             var result = JSON.stringify(json);
+             console.log(result);
+             $("#text").val(result);
+         }
+ 
+         $(document).ready(function () {
+ 
+            window.showData = function  (data) {
+                console.info("调用showData");
+
+                var result = JSON.stringify(data);
+                $("#text").val(result);
+            }
+ 
+             $("#btn").click(function () {
+ 
+                 $.ajax({
+                     url: "http://10.1.11.177:8080/mem",
+                     type: "GET",
+                     contentType: 'application/json; charset=utf-8',
+                     dataType: "jsonp",  //指定服务器返回的数据类型
+                     jsonpCallback: "showData",  //指定回调函数名称
+                     success: function (json) {
+                     console.info(json);
+                     },
+                     error: function (xhr) {
+                     console.log("Error: " + xhr.statusText);
+    }
+                 });
+             });
+ 
+         });
+     </script>
+ </head>
+ <body>
+     <input id="btn" type="button" value="跨域获取数据" />
+     <textarea id="text" style="width: 400px; height: 100px;"></textarea>
+ 
+ </body>
+ </html>

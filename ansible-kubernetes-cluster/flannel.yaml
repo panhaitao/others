@@ -1,0 +1,55 @@
+- name: deployment flanned network
+  hosts: k8s-nodes
+  vars:
+    name: flannel
+    version: 0.9.1
+    etcd_server: 10.1.11.164
+    src_bin_path: pkg/{{ name }}/{{ version }}/ 
+    src_conf_path: pkg/{{ name }}/{{ version }}/conf/
+    srv_path: /usr/lib/systemd/system/
+    srv_list:
+      - flanneld
+  tasks:
+    - name: Preparing for etcd
+      command: "mkdir -pv {{ item }}"
+      run_once: true
+      with_items:
+        - /etc/flannel/
+        - /usr/libexec/flanneld/
+
+    - name: Preparing for etcd
+      command: "touch /var/log/ansible.log"
+
+    - name: install flanned bin
+      copy: src={{ src_bin_path }}/{{ item }} dest=/usr/bin/{{ item }} owner=root group=root mode=0755 
+      notify:
+        - daemon-reload
+        - restart service
+      with_items: "{{ srv_list }}"
+
+    - name: install flanned initscript 
+      copy: src={{ src_bin_path }}/mk-docker-opts.sh dest=/usr/libexec/flanneld/ owner=root group=root mode=0755 
+      notify:
+        - daemon-reload
+        - restart service
+
+    - name: Copy flanned/ conf file
+      template: src={{ src_conf_path }}/{{ item }} dest=/etc/flannel/
+      notify:
+        - daemon-reload
+        - restart service
+      with_items: "{{ srv_list }}"
+
+    - name: Copy etcd service file
+      copy: src={{ src_conf_path }}/{{ item }}.service dest={{ srv_path }}/{{ item }}.service
+      notify:
+        - daemon-reload
+        - restart service
+      with_items: "{{ srv_list }}"
+
+  handlers:
+    - name: daemon-reload
+      command: "systemctl daemon-reload"
+    - name: restart service 
+      service: name={{ item }} state=restarted
+      with_items: "{{ srv_list }}"

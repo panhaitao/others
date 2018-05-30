@@ -1,0 +1,14 @@
+- name: kubernetes testing 
+  hosts: test 
+  user: root
+  tasks:
+  - name: scp nginx-rc.yaml
+    template: src=templates/pods/nginx-rc.yaml dest=/root/nginx-rc.yaml group=root mode=0755
+  - name: scp nginx-srv.yaml
+    template: src=templates/pods/nginx-srv.yaml dest=/root/nginx-srv.yaml group=root mode=0755
+  - name: pull nginx images
+    command: 'docker pull registry.deepin.com/library/nginx' 
+  - name: run nginx-rc.yaml
+    command: 'kubectl create -f nginx-rc.yaml' 
+  - name: run nginx-srv.yaml
+    command: 'kubectl create -f nginx-srv.yaml' 

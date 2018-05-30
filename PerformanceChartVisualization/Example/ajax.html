@@ -1,0 +1,20 @@
+<html lang="en">
+<meta http-equiv="Access-Control-Allow-Origin" content="*" />
+<head>
+<title>JavaScript - read JSON from URL</title>
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+</head>
+
+<body>
+    <div class="mypanel"></div>
+
+    <script>
+    $.getJSON('http://localhost:5000', function(data) {
+        
+        var text = "${data.hello}<br>";
+        $(".mypanel").html(text);
+    });
+    </script>
+    
+</body>
+</html>

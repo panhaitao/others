@@ -1,0 +1,42 @@
+- name: deployment kuberbetes  
+  hosts: test 
+  user: root
+  tasks:
+  - name: Install docker 
+    yum:  name=docker state=latest 
+  - name: update config 
+    template: src=templates/sysconfig/docker dest=/etc/sysconfig/docker owner=root group=root mode=644
+  - name: Create config dir 
+    command: "mkdir -pv /root/.docker/"
+  - name: add registry,deepin.com auth config 
+    template: src=templates/docker/config.json dest=/root/.docker/config.json owner=root group=root mode=600
+  - name: start docker services
+    service: name=docker enabled=yes state=restarted
+  - name: Prepare kubernetes base pause 
+    command: "docker pull kubernetes/pause"
+  - name: Prepare kubernetes base pod 
+    command: "docker pull registry.deepin.com/library/pod-infrastructure:latest"
+  - name: set alias tag of pod-infrastructure 
+    command: "docker tag registry.deepin.com/library/pod-infrastructure registry.access.redhat.com/rhel7/pod-infrastructure"
+
+  - name: Install etcd
+    yum:  name=etcd state=latest 
+  - name: restart etcd services
+    service: name=etcd enabled=yes state=restarted
+
+  - name: Install kubernetes 
+    yum:  name=kubernetes state=latest 
+
+  - name: "Setting: Disable ServiceAccount And set --service-node-port-range 80-32767" 
+    template: src=templates/kubernetes/apiserver dest=/etc/kubernetes/apiserver owner=root group=root mode=644
+
+  - name: start k8s-1 services
+    service: name=kube-apiserver          enabled=yes state=restarted
+  - name: start k8s-2 services
+    service: name=kube-controller-manager enabled=yes state=restarted
+  - name: start k8s-3 services
+    service: name=kube-scheduler          enabled=yes state=restarted
+  - name: start k8s-4 services
+    service: name=kube-proxy              enabled=yes state=restarted
+  - name: start k8s-5 services
+    service: name=kubelet                 enabled=yes state=restarted
